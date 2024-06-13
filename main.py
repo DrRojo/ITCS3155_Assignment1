@@ -85,3 +85,26 @@ def main():
 
     while machine_on:
         choice = input("What would you like? (small/medium/large/off/report): ").strip().lower()
+        if choice == "off":
+            machine_on = False
+        elif choice == "report":
+            print(f"Bread: {sandwich_machine.machine_resources['bread']} slice(s)")
+            print(f"Ham: {sandwich_machine.machine_resources['ham']} slice(s)")
+            print(f"Cheese: {sandwich_machine.machine_resources['cheese']} ounce(s)")
+        elif choice in ["small", "medium", "large"]:
+            sandwich_size = choice
+            order = recipes[sandwich_size]
+            can_make, missing_item = sandwich_machine.check_resources(order["ingredients"])
+        if can_make:
+            print("The cost is ${order['cost']}.")
+            payment = sandwich_machine.process_coins()
+            if sandwich_machine.transaction_result(payment, order["cost"]):
+                sandwich_machine.make_sandwich(sandwich_size, order["ingredients"])
+        else:
+            print(f"Sorry, there is not engouh {missing_item}.")
+    else:
+        print("Invalid choice.  Please select again.")
+
+
+if __name__ == "__main__":
+    main()
