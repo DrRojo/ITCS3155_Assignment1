@@ -78,4 +78,10 @@ class SandwichMachine:
             self.machine_resources[item] -= order_ingredients[item]
         print(f"Here is your {sandwich_size} sandwich. Bon appetit!")
 
-### Make an instance of SandwichMachine class and write the rest of the codes ###
+# Make an instance of SandwichMachine class and write the rest of the codes #
+def main():
+    sandwich_machine = SandwichMachine(resources)
+    machine_on = True
+
+    while machine_on:
+        choice = input("What would you like? (small/medium/large/off/report): ").strip().lower()
