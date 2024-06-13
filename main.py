@@ -83,21 +83,20 @@ class SandwichMachine:
         self.total_sandwiches_sold += 1
         print(f"{sandwich_size} sandwich is ready. Bon appetit!")
 
-def print_report(self):
-    """Prints current resources on hand as well as the current revenue"""
-    print(f"Sandwiches sold: {self.total_sandwiches_sold}")
-    print(f"Total revenue: ${self.total_revenue:.2f}")
-    print(f"Bread: {self.machine_resources['bread']} slice(s)")
-    print(f"Ham: {self.machine_resources['ham']} slice(s)")
-    print(f"Cheese: {self.machine_resources['cheese']} ounce(s)")
-    for item, amount in self.machine_resources.items():
-        if amount <= 2:
-            print(f"Warning: {item} is running low!")
+    def print_report(self):
+        """Prints current resources on hand as well as the current revenue"""
+        print(f"Sandwiches sold: {self.total_sandwiches_sold}")
+        print(f"Total revenue: ${self.total_revenue:.2f}")
+        print(f"Bread: {self.machine_resources['bread']} slice(s)")
+        print(f"Ham: {self.machine_resources['ham']} slice(s)")
+        print(f"Cheese: {self.machine_resources['cheese']} ounce(s)")
+        for item, amount in self.machine_resources.items():
+            if amount <= 2:
+                print(f"Warning: {item} is running low!")
 
-
-def reset_revenue(self):
-    self.total_revenue = 0.0
-    print("Total revenue has been reset to $0.00")
+    def reset_revenue(self):
+        self.total_revenue = 0.0
+        print("Total revenue has been reset to $0.00")
 
 
 def main():
@@ -119,18 +118,18 @@ def main():
             sandwich_size = choice
             order = recipes[sandwich_size]
             can_make, missing_item = sandwich_machine.check_resources(order["ingredients"])
-        if can_make:
-            print(f"The cost is ${order['cost']:.2f}.")
-            payment = sandwich_machine.process_coins()
-            if sandwich_machine.transaction_result(payment, order['cost']):
-                sandwich_machine.make_sandwich(sandwich_size, order["ingredients"])
+            if can_make:
+                print(f"The cost is ${order['cost']:.2f}.")
+                payment = sandwich_machine.process_coins()
+                if sandwich_machine.transaction_result(payment, order['cost']):
+                    sandwich_machine.make_sandwich(sandwich_size, order["ingredients"])
+            else:
+                print(f"Sorry, there is not enough {missing_item}.")
+                another_choice = input("Would you like something else (yes/no): ").strip().lower()
+                if another_choice == "no":
+                    print("Transaction Canceled.  Returning to the main menu")
         else:
-            print(f"Sorry, there is not enough {missing_item}.")
-            another_choice = input("Would you like something else (yes/no): ").strip().lower()
-            if another_choice == "no":
-                print("Transaction Canceled.  Returning to the main menu")
-    else:
-        print("Invalid choice.  Please select again.")
+            print("Invalid choice.  Please select again.")
 
 
 if __name__ == "__main__":
