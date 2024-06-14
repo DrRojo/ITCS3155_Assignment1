@@ -35,6 +35,7 @@ original_resources = {
 
 resources = original_resources.copy()
 
+
 # Complete functions #
 
 
