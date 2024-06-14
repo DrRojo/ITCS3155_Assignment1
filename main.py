@@ -37,6 +37,7 @@ resources = original_resources.copy()
 
 # Complete functions #
 
+
 class SandwichMachine:
 
     def __init__(self, machine_resources, original_resources):
@@ -79,17 +80,16 @@ class SandwichMachine:
             print("Sorry, that is not enough money.  Your money has been returned. ")
             return False
 
-    def make_sandwich(self, sandwich_size, order_ingredients, customer_id):
-        """Deduct the required ingredients from the resources.
-           Hint: no output"""
+    def make_sandwich(self, sandwich_size, order_ingredients, customer_id, quantity):
+        """Deduct the required ingredients from the resources."""
         for item in order_ingredients:
-            self.machine_resources[item] -= order_ingredients[item]
-            self.ingredient_usage[item] += order_ingredients[item]
-        self.total_sandwiches_sold += 1
-        self.revenue_breakdown[sandwich_size] += recipes[sandwich_size]["cost"]
-        self.transaction_history.append((sandwich_size, recipes[sandwich_size]["cost"]))
-        self.customer_orders[customer_id].append((sandwich_size, recipes[sandwich_size]["cost"]))
-        print(f"Your {sandwich_size} sandwich is ready. Bon appetit!")
+            self.machine_resources[item] -= order_ingredients[item] * quantity
+            self.ingredient_usage[item] += order_ingredients[item] * quantity
+        self.total_sandwiches_sold += quantity
+        self.revenue_breakdown[sandwich_size] += recipes[sandwich_size]["cost"] * quantity
+        self.transaction_history.append((sandwich_size, recipes[sandwich_size]["cost"] * quantity))
+        self.customer_orders[customer_id].append((sandwich_size, recipes[sandwich_size]["cost"] * quantity))
+        print(f"Your {quantity} {sandwich_size} sandwich(es) is ready. Bon Appetit!")
 
     def print_report(self):
         """Prints current resources on hand as well as the current revenue"""
@@ -141,6 +141,7 @@ class SandwichMachine:
         else:
             print("No sandwiches sold yet.")
 
+
 def main():
     sandwich_machine = SandwichMachine(resources, original_resources)
     machine_on = True
@@ -150,40 +151,43 @@ def main():
             print(f"Warning: {item} is running low!")
 
     while machine_on:
-        print(f"Welcome to Good Burger, home of the good burger!")
+        print("Welcome to Good Burger, home of the good burger!")
         customer_id = int(input("May I have your customer number (1-10): "))
         if customer_id not in range(1, 11):
             print("Invalid customer number. Please enter a number between 1 and 10.")
             continue
 
-        order_complete = False
         total_cost = 0
         customer_order = []
 
-        while not order_complete:
-            choice = input("What would you like? (small/medium/large/complete): ").strip().lower()
-            if choice in ["small", "medium", "large"]:
-                sandwich_size = choice
-                order = recipes[sandwich_size]
-                can_make, missing_item = sandwich_machine.check_resources(order["ingredients"])
-                if can_make:
-                    total_cost += order["cost"]
-                    customer_order.append((sandwich_size, order["ingredients"]))
+        for sandwich_size in ["small", "medium", "large"]:
+            while True:
+                quantity = int(input(f"How many {sandwich_size} sandwiches would you like? "))
+                if quantity > 0:
+                    order = recipes[sandwich_size]
+                    total_ingredients = {item: quantity * amount for item, amount in order["ingredients"].items()}
+                    can_make, missing_item = sandwich_machine.check_resources(total_ingredients)
+                    if can_make:
+                        total_cost += order["cost"] * quantity
+                        customer_order.append((sandwich_size, order["ingredients"], quantity))
+                        break
+                    else:
+                        print(f"Sorry, there is not enough {missing_item}.")
+                        reduce_quantity = input("Would you like to reduce the quantity? (yes/no): ").strip().lower()
+                        if reduce_quantity == "no":
+                            break
                 else:
-                    print(f"Sorry, there is not enough {missing_item}.")
-            elif choice == "complete":
-                order_complete = True
-            else:
-                print("Invalid choice. Please select again.")
+                    break
 
         if customer_order:
             print(f"The total cost is ${total_cost:.2f}.")
             payment = sandwich_machine.process_coins()
             if sandwich_machine.transaction_result(payment, total_cost):
-                for sandwich_size, ingredients in customer_order:
-                    sandwich_machine.make_sandwich(sandwich_size, ingredients, customer_id)
+                for sandwich_size, ingredients, quantity in customer_order:
+                    sandwich_machine.make_sandwich(sandwich_size, ingredients, customer_id, quantity)
 
-        next_action = input("What would you like to do next? (off/report/resupply/history/average/continue): ").strip().lower()
+        print("What would you like to do next?")
+        next_action = input("(Report/Resupply/History/Average/Continue/OFF): ").strip().lower()
         if next_action == "off":
             sandwich_machine.reset_revenue()
             machine_on = False
@@ -199,6 +203,7 @@ def main():
             continue
         else:
             print("Invalid choice. Please select again.")
+
 
 if __name__ == "__main__":
     main()
